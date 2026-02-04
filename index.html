@@ -12,7 +12,6 @@
   <div id="main">
     <h1>Hey Love 💕</h1>
     <p style="font-size: 1.5rem; color: #d11d53; margin-bottom: 10px;">Will you be my Valentine? 🌹</p>
-
     <div class="button-row">
       <button id="yes">Yes 💖</button>
       <button id="no">No 🙈</button>
@@ -25,10 +24,10 @@
       <h2>WoHoo! She said yesss</h2>
       <p>Congratulations Khushi</p>
       <div class="message-body">
-        <p>This moment just became a beautiful memory of life.<br>>
-        <p>This moment means everything to me.<br>
-        <p>You are my happiness, my safe place, my favourite person.<br>>
-        <p>Thank you for choosing me and for being my girlfriend. I can't wait to make more memories with you.</p>
+        <p>This moment just became a beautiful memory of life.</p>
+        <p>This moment means everything to me.</p>
+        <p>You are my happiness, my safe place, my favourite person.</p>
+        <p>Thank you for choosing me and for being my girlfriend.</p>
       </div>
       <h2>I Love You Endlessly.</h2>
       <button id="proceedBtn">Click here to see ⮕</button>
@@ -38,19 +37,20 @@
   <div id="memorial">
     <div class="overlay"></div>
     <div class="memorial-container">
-      
       <div class="media-row">
         <div id="photoRow"></div>
-        
         <video id="videoRow" playsinline webkit-playsinline muted loop></video>
       </div>
-
       <div class="letter-container">
         <p id="letter"></p>
       </div>
-
     </div>
     <audio id="bgMusic" src="assets/music.mp3" preload="auto"></audio>
+    
+    <a href="assets/ticket.pdf" target="_blank" id="airlineLink" class="hidden-pop">
+        <span class="icon">✈️</span>
+        <span class="text">Open Your Ticket</span>
+    </a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
