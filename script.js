@@ -15,13 +15,22 @@ window.onload = () => {
   const SPEED = 0.18, MARGIN = 20, SAFE_RADIUS = 80, ESCAPE_FORCE = 6;
   let pointerX = null, pointerY = null;
 
-  function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+  // --- Crazy No Button Messages ---
+  const noMessages = [
+    "No 🙈",
+    "Noooo? 🤨",
+    "No way! 🙅‍♀️",
+    "Are you sure? 🥺",
+    "Think again... 🌹",
+    "Last chance! 💎",
+    "Wrong button! 😂",
+    "Still no? 😭",
+    "You're being mean! 💔",
+    "Just click Yes! ✨"
+  ];
+  let noClickCount = 0;
 
-  function distanceToRect(px, py, rect) {
-    const dx = Math.max(rect.left - px, 0, px - rect.right);
-    const dy = Math.max(rect.top - py, 0, py - rect.bottom);
-    return Math.hypot(dx, dy);
-  }
+  function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
 
   function moveButtonRandomly() {
     const rect = noBtn.getBoundingClientRect();
@@ -31,6 +40,18 @@ window.onload = () => {
     targetY = noY;
     noBtn.style.left = `${noX}px`;
     noBtn.style.top = `${noY}px`;
+  }
+
+  function handleNoInteraction() {
+    noClickCount++;
+    const messageIndex = Math.min(noClickCount, noMessages.length - 1);
+    noBtn.textContent = noMessages[messageIndex];
+    
+    // Make the Yes button slightly bigger each time for extra humor
+    const currentScale = 1 + (noClickCount * 0.05);
+    yesBtn.style.transform = `scale(${currentScale})`;
+    
+    moveButtonRandomly();
   }
 
   function activateAvoidance(e) {
@@ -49,15 +70,21 @@ window.onload = () => {
       noBtn.style.zIndex = "1000";
       document.body.appendChild(noBtn);
     }
-
-    if (e.type === 'touchstart') {
-      e.preventDefault(); 
-      moveButtonRandomly();
-    }
   }
 
+  // Listeners for the "No" button
   noBtn.addEventListener("mouseenter", activateAvoidance);
-  noBtn.addEventListener("touchstart", activateAvoidance, { passive: false });
+  
+  noBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleNoInteraction();
+  });
+
+  noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault(); 
+    activateAvoidance(e);
+    handleNoInteraction();
+  }, { passive: false });
 
   document.addEventListener("mousemove", e => { 
     pointerX = e.clientX; 
@@ -72,7 +99,7 @@ window.onload = () => {
   function animate() {
     if (active && pointerX !== null && !isRespawning && noBtn.parentNode) {
       const rect = noBtn.getBoundingClientRect();
-      const dist = distanceToRect(pointerX, pointerY, rect);
+      const dist = Math.hypot(rect.left + rect.width/2 - pointerX, rect.top + rect.height/2 - pointerY);
 
       if (rect.left < 5 || rect.right > window.innerWidth - 5 || rect.top < 5 || rect.bottom > window.innerHeight - 5) {
         isRespawning = true;
@@ -108,23 +135,19 @@ window.onload = () => {
   }
   animate();
 
-  // --- Memorial Content ---
-  const letterText = `To my forever VALENTINE,\n\nBaby I never knew love was this beautiful until I met you , Thank you for coming into my life. Every moment with you feels like home, You make my days brighter and my heart calmer your smile the best stress reliever no matter how stressed iam, You are my world. when you are beside me everyday is a valentine day and you are special to me everyday, my love towards you grows only stronger by time, I know I might not be a perfect boyfriend but I can promise I’ll always make my self better everyday and I can’t see tears no matter what I promise You are my love of my life, No matter how many storms come our way, as long as you hold my hand, I am ready to overcome anything. I really can’t wait to get older and wiser with you.\n\nThank you my love\n\nI love you to the moon and back❤️\n\nKhushi’s Saideepak\n\n❤️`;
-
+  // --- Memorial Logic ---
   function celebrate() {
     const duration = 10 * 60 * 1000; 
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
-
-    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
 
     const interval = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
       if (timeLeft <= 0) return clearInterval(interval);
 
       const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: Math.random() * 0.2 + 0.1, y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: Math.random() * 0.2 + 0.7, y: Math.random() - 0.2 } });
     }, 2000);
   }
 
@@ -143,12 +166,13 @@ window.onload = () => {
       photoRow.appendChild(img);
     });
 
-    // --- VIDEO MOBILE FIX ---
     videoRow.src = "assets/video.mp4";
-    videoRow.setAttribute("playsinline", ""); // Keeps video in layout on iOS
+    videoRow.setAttribute("playsinline", "");
     videoRow.setAttribute("webkit-playsinline", "");
-    videoRow.muted = true; // Required for auto-play on many phones
+    videoRow.muted = true;
     videoRow.play();
+
+    const letterText = `To my forever VALENTINE,\n\nBaby I never knew love was this beautiful until I met you , Thank you for coming into my life. Every moment with you feels like home, You make my days brighter and my heart calmer your smile the best stress reliever no matter how stressed iam, You are my world. when you are beside me everyday is a valentine day and you are special to me everyday, my love towards you grows only stronger by time, I know I might not be a perfect boyfriend but I can promise I’ll always make my self better everyday and I can’t see tears no matter what I promise You are my love of my life, No matter how many storms come our way, as long as you hold my hand, I am ready to overcome anything. I really can’t wait to get older and wiser with you.\n\nThank you my love\n\nI love you to the moon and back❤️\n\nKhushi’s Saideepak\n\n❤️`;
 
     let i = 0;
     letterEl.textContent = ""; 
@@ -159,7 +183,6 @@ window.onload = () => {
         if (i % 5 === 0) memorial.scrollTop = memorial.scrollHeight;
       } else {
         clearInterval(typeInterval);
-        // Show the airline button once the letter is done
         if(airlineLink) airlineLink.classList.add("show");
       }
     }, 45);
@@ -170,7 +193,7 @@ window.onload = () => {
     main.style.display = "none";
     noBtn.style.display = "none"; 
     intermission.style.display = "flex"; 
-    if (bgMusic) bgMusic.play().catch(() => console.log("Audio waiting for user tap"));
+    if (bgMusic) bgMusic.play().catch(() => {});
   });
 
   proceedBtn.addEventListener("click", () => {
