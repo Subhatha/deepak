@@ -60,3 +60,58 @@ button {
   background: #adb5bd;
   color: white;
 }
+
+
+
+/* nhbsjhbj */
+#intermission {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: #ffafbd; /* Soft pink background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card-content {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 400px;
+}
+
+.heart-icon {
+    font-size: 50px;
+    animation: beat 1s infinite;
+}
+
+#intermission h2 {
+    color: #d11d53;
+    margin: 20px 0 10px;
+}
+
+#intermission p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+#proceedBtn {
+    background: #ff4d6d;
+    color: white;
+    width: 100%;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes beat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
