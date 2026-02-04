@@ -6,6 +6,7 @@ window.onload = () => {
   const proceedBtn = document.getElementById("proceedBtn");
   const memorial = document.getElementById("memorial");
   const bgMusic = document.getElementById("bgMusic");
+  const airlineLink = document.getElementById("airlineLink");
 
   // --- Evasive No Button Logic ---
   let active = false;
@@ -155,10 +156,11 @@ window.onload = () => {
       if(letterText[i] !== undefined) {
         letterEl.textContent += letterText[i]; 
         i++;
-        // Auto-scroll the page as text types
         if (i % 5 === 0) memorial.scrollTop = memorial.scrollHeight;
       } else {
         clearInterval(typeInterval);
+        // Show the airline button once the letter is done
+        if(airlineLink) airlineLink.classList.add("show");
       }
     }, 45);
   }
@@ -166,14 +168,14 @@ window.onload = () => {
   // --- Flow Controls ---
   yesBtn.addEventListener("click", () => {
     main.style.display = "none";
-    noBtn.style.display = "none"; // Hide the fugitive button
+    noBtn.style.display = "none"; 
     intermission.style.display = "flex"; 
     if (bgMusic) bgMusic.play().catch(() => console.log("Audio waiting for user tap"));
   });
 
   proceedBtn.addEventListener("click", () => {
     intermission.style.display = "none";
-    noBtn.remove(); // Clean up memory
+    noBtn.remove(); 
     if (bgMusic) bgMusic.play(); 
     showMemorial();
   });
