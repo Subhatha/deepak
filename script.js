@@ -12,7 +12,7 @@ window.onload = () => {
   let active = false;
   let isRespawning = false;
   let noX, noY, targetX, targetY;
-  const SPEED = 0.18, MARGIN = 20, SAFE_RADIUS = 80, ESCAPE_FORCE = 6;
+  const SPEED = 0.18, MARGIN = 20, SAFE_RADIUS = 80, ESCAPE_FORCE = 12; // Increased escape force
   let pointerX = null, pointerY = null;
 
   // --- Crazy No Button Messages ---
@@ -42,15 +42,20 @@ window.onload = () => {
     noBtn.style.top = `${noY}px`;
   }
 
-  function handleNoInteraction() {
+  // UPDATED: This now handles the text change AND the move
+  function handleNoInteraction(e) {
+    if (e) e.preventDefault();
+    
+    // Change Text
     noClickCount++;
     const messageIndex = Math.min(noClickCount, noMessages.length - 1);
     noBtn.textContent = noMessages[messageIndex];
     
-    // Make the Yes button slightly bigger each time for extra humor
-    const currentScale = 1 + (noClickCount * 0.05);
+    // Make Yes grow
+    const currentScale = 1 + (noClickCount * 0.1);
     yesBtn.style.transform = `scale(${currentScale})`;
-    
+
+    // Force immediate move after click
     moveButtonRandomly();
   }
 
@@ -72,19 +77,11 @@ window.onload = () => {
     }
   }
 
-  // Listeners for the "No" button
+  // LISTENERS
   noBtn.addEventListener("mouseenter", activateAvoidance);
   
-  noBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    handleNoInteraction();
-  });
-
-  noBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault(); 
-    activateAvoidance(e);
-    handleNoInteraction();
-  }, { passive: false });
+  // Using 'pointerdown' is better for fast interactions
+  noBtn.addEventListener("pointerdown", handleNoInteraction);
 
   document.addEventListener("mousemove", e => { 
     pointerX = e.clientX; 
@@ -99,9 +96,12 @@ window.onload = () => {
   function animate() {
     if (active && pointerX !== null && !isRespawning && noBtn.parentNode) {
       const rect = noBtn.getBoundingClientRect();
-      const dist = Math.hypot(rect.left + rect.width/2 - pointerX, rect.top + rect.height/2 - pointerY);
+      const btnCenterX = rect.left + rect.width / 2;
+      const btnCenterY = rect.top + rect.height / 2;
+      const dist = Math.hypot(btnCenterX - pointerX, btnCenterY - pointerY);
 
-      if (rect.left < 5 || rect.right > window.innerWidth - 5 || rect.top < 5 || rect.bottom > window.innerHeight - 5) {
+      // Respawn if it hits screen edges
+      if (rect.left < 2 || rect.right > window.innerWidth - 2 || rect.top < 2 || rect.bottom > window.innerHeight - 2) {
         isRespawning = true;
         noBtn.style.opacity = "0";
         setTimeout(() => {
@@ -113,11 +113,10 @@ window.onload = () => {
         }, 200);
       }
 
+      // Smooth Evasion
       if (!isRespawning && dist < SAFE_RADIUS) {
-        const cx = clamp(pointerX, rect.left, rect.right);
-        const cy = clamp(pointerY, rect.top, rect.bottom);
-        let dx = rect.left + rect.width / 2 - cx;
-        let dy = rect.top + rect.height / 2 - cy;
+        let dx = btnCenterX - pointerX;
+        let dy = btnCenterY - pointerY;
         const len = Math.hypot(dx, dy) || 1;
         
         targetX += (dx / len) * (SAFE_RADIUS - dist + ESCAPE_FORCE);
@@ -125,6 +124,10 @@ window.onload = () => {
       }
 
       if (!isRespawning) {
+        // Clamping targets so it doesn't fly off screen
+        targetX = clamp(targetX, MARGIN, window.innerWidth - rect.width - MARGIN);
+        targetY = clamp(targetY, MARGIN, window.innerHeight - rect.height - MARGIN);
+        
         noX += (targetX - noX) * SPEED;
         noY += (targetY - noY) * SPEED;
         noBtn.style.left = `${noX}px`;
@@ -135,51 +138,31 @@ window.onload = () => {
   }
   animate();
 
-  // --- Memorial Logic ---
-  function celebrate() {
-    const duration = 10 * 60 * 1000; 
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
-
-    const interval = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-      if (timeLeft <= 0) return clearInterval(interval);
-
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: Math.random() * 0.2 + 0.1, y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: Math.random() * 0.2 + 0.7, y: Math.random() - 0.2 } });
-    }, 2000);
-  }
-
+  // --- Memorial & Flow ---
   function showMemorial() {
     memorial.classList.add("active");
     const photoRow = document.getElementById("photoRow");
     const videoRow = document.getElementById("videoRow");
     const letterEl = document.getElementById("letter");
 
-    celebrate(); 
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
     photoRow.innerHTML = "";
     ["assets/photo1.jpeg", "assets/photo2.jpeg", "assets/photo3.jpeg", "assets/photo4.jpeg"].forEach(src => {
-      const img = document.createElement("img"); 
-      img.src = src; 
-      photoRow.appendChild(img);
+      const img = document.createElement("img"); img.src = src; photoRow.appendChild(img);
     });
 
     videoRow.src = "assets/video.mp4";
     videoRow.setAttribute("playsinline", "");
-    videoRow.setAttribute("webkit-playsinline", "");
     videoRow.muted = true;
     videoRow.play();
 
     const letterText = `To my forever VALENTINE,\n\nBaby I never knew love was this beautiful until I met you , Thank you for coming into my life. Every moment with you feels like home, You make my days brighter and my heart calmer your smile the best stress reliever no matter how stressed iam, You are my world. when you are beside me everyday is a valentine day and you are special to me everyday, my love towards you grows only stronger by time, I know I might not be a perfect boyfriend but I can promise I’ll always make my self better everyday and I can’t see tears no matter what I promise You are my love of my life, No matter how many storms come our way, as long as you hold my hand, I am ready to overcome anything. I really can’t wait to get older and wiser with you.\n\nThank you my love\n\nI love you to the moon and back❤️\n\nKhushi’s Saideepak\n\n❤️`;
 
     let i = 0;
-    letterEl.textContent = ""; 
     const typeInterval = setInterval(() => {
       if(letterText[i] !== undefined) {
-        letterEl.textContent += letterText[i]; 
-        i++;
+        letterEl.textContent += letterText[i]; i++;
         if (i % 5 === 0) memorial.scrollTop = memorial.scrollHeight;
       } else {
         clearInterval(typeInterval);
@@ -188,17 +171,16 @@ window.onload = () => {
     }, 45);
   }
 
-  // --- Flow Controls ---
   yesBtn.addEventListener("click", () => {
     main.style.display = "none";
-    noBtn.style.display = "none"; 
+    if(noBtn.parentNode) noBtn.style.display = "none"; 
     intermission.style.display = "flex"; 
     if (bgMusic) bgMusic.play().catch(() => {});
   });
 
   proceedBtn.addEventListener("click", () => {
     intermission.style.display = "none";
-    noBtn.remove(); 
+    if(noBtn.parentNode) noBtn.remove(); 
     if (bgMusic) bgMusic.play(); 
     showMemorial();
   });
