@@ -69,7 +69,6 @@ window.onload = () => {
   }, { passive: false });
 
   function animate() {
-    // Only animate if the button is still visible and not removed
     if (active && pointerX !== null && !isRespawning && noBtn.parentNode) {
       const rect = noBtn.getBoundingClientRect();
       const dist = distanceToRect(pointerX, pointerY, rect);
@@ -143,7 +142,11 @@ window.onload = () => {
       photoRow.appendChild(img);
     });
 
+    // --- VIDEO MOBILE FIX ---
     videoRow.src = "assets/video.mp4";
+    videoRow.setAttribute("playsinline", ""); // Keeps video in layout on iOS
+    videoRow.setAttribute("webkit-playsinline", "");
+    videoRow.muted = true; // Required for auto-play on many phones
     videoRow.play();
 
     let i = 0;
@@ -152,7 +155,7 @@ window.onload = () => {
       if(letterText[i] !== undefined) {
         letterEl.textContent += letterText[i]; 
         i++;
-        // Mobile-friendly: Keeps text in view while typing
+        // Auto-scroll the page as text types
         if (i % 5 === 0) memorial.scrollTop = memorial.scrollHeight;
       } else {
         clearInterval(typeInterval);
@@ -163,20 +166,14 @@ window.onload = () => {
   // --- Flow Controls ---
   yesBtn.addEventListener("click", () => {
     main.style.display = "none";
-    
-    // IMPORTANT: Hide the "No" button immediately
-    noBtn.style.display = "none"; 
-    
+    noBtn.style.display = "none"; // Hide the fugitive button
     intermission.style.display = "flex"; 
-    if (bgMusic) bgMusic.play().catch(() => console.log("Waiting for user tap for audio"));
+    if (bgMusic) bgMusic.play().catch(() => console.log("Audio waiting for user tap"));
   });
 
   proceedBtn.addEventListener("click", () => {
     intermission.style.display = "none";
-    
-    // Clean up: Delete the "No" button entirely so it never returns
-    noBtn.remove(); 
-    
+    noBtn.remove(); // Clean up memory
     if (bgMusic) bgMusic.play(); 
     showMemorial();
   });
