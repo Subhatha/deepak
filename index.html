@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Be My Valentine 💖</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="memorial.css">
+</head>
+<body>
+
+  <div id="main">
+    <h1>Hey Love 💕</h1>
+    <p style="font-size: 1.5rem; color: #d11d53; margin-bottom: 10px;">Will you be my Valentine? 🌹</p>
+
+    <div class="button-row">
+      <button id="yes">Yes 💖</button>
+      <button id="no">No 🙈</button>
+    </div>
+  </div>
+
+  <div id="memorial">
+    <div class="overlay"></div>
+    <div class="memorial-container">
+      
+      <div class="media-row">
+        <div id="photoRow"></div>
+        <video id="videoRow" autoplay muted loop></video>
+      </div>
+
+      <div class="letter-container">
+        <p id="letter"></p>
+      </div>
+
+    </div>
+    <audio id="bgMusic" src="assets/music.mp3"></audio>
+  </div>
+
+  <script src="confetti.browser.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
