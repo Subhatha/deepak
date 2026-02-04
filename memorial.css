@@ -51,6 +51,7 @@ button {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 4px 15px rgba(209, 29, 83, 0.2);
+  white-space: nowrap; /* Prevents text from wrapping */
 }
 
 #yes {
@@ -65,7 +66,7 @@ button {
 #no {
   background: #adb5bd;
   color: white;
-  touch-action: none; /* Critical for mobile evasion */
+  touch-action: none; 
 }
 
 /* --- Screen 2: Intermission Card --- */
@@ -106,8 +107,9 @@ button {
 #proceedBtn {
   background: #ff4d6d;
   color: white;
-  width: 100%;
+  width: auto; /* Reverted from 100% to keep it a pill shape */
   margin-top: 10px;
+  display: inline-block;
 }
 
 /* --- Screen 3: Memorial Section --- */
@@ -120,20 +122,12 @@ button {
   transition: opacity 1.5s ease;
   padding: 20px;
   z-index: 100;
-  overflow-y: auto; /* Allows scrolling on mobile */
+  overflow-y: auto;
 }
 
 #memorial.active {
   opacity: 1;
   visibility: visible;
-}
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: url('https://www.transparenttextures.com/patterns/dust.png');
-  pointer-events: none;
-  opacity: 0.3;
 }
 
 .memorial-container {
@@ -163,11 +157,9 @@ button {
 #photoRow img {
   height: 100%;
   flex: 1;
-  width: 0;
   object-fit: cover;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
-  transition: transform 0.4s ease;
 }
 
 #videoRow {
@@ -194,8 +186,8 @@ button {
 /* --- Airline Pop-up Button --- */
 #airlineLink {
   position: fixed;
-  bottom: 30px;
-  right: -250px; /* Hidden off-screen */
+  bottom: 50px;
+  right: -250px;
   background: white;
   padding: 15px 25px;
   border-radius: 50px 0 0 50px;
@@ -211,19 +203,24 @@ button {
 }
 
 #airlineLink.show {
-  right: 0; /* Slides into view */
-}
-
-#airlineLink .icon {
-  font-size: 24px;
+  right: 0;
 }
 
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
   #main h1 { font-size: 2.2rem; }
   
-  .button-row { flex-direction: column; width: 100%; }
-  button { width: 80%; }
+  /* Centered stacks instead of full-width bars */
+  .button-row { 
+    flex-direction: column; 
+    gap: 15px; 
+    width: auto; /* Prevents container from stretching */
+  }
+  
+  button { 
+    width: fit-content; /* Only as wide as the text + padding */
+    min-width: 160px; /* Ensures a nice pill shape */
+  }
 
   .media-row {
     flex-direction: column;
@@ -239,7 +236,6 @@ button {
   #photoRow img {
     width: 100%;
     height: 180px;
-    object-fit: cover;
   }
 
   #videoRow {
