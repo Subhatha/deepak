@@ -8,14 +8,17 @@ window.onload = () => {
   const bgMusic = document.getElementById("bgMusic");
   const airlineLink = document.getElementById("airlineLink");
 
-  // --- Evasive No Button Logic ---
+  // --- Evasive & Logic Variables ---
   let active = false;
   let isRespawning = false;
   let noX, noY, targetX, targetY;
-  const SPEED = 0.18, MARGIN = 20, SAFE_RADIUS = 80, ESCAPE_FORCE = 12; // Increased escape force
+  const SPEED = 0.2; // Slightly faster follow speed
+  const MARGIN = 20;
+  const SAFE_RADIUS = 90; // Distance before it runs away
+  const ESCAPE_FORCE = 15; // How fast it pushes away
   let pointerX = null, pointerY = null;
 
-  // --- Crazy No Button Messages ---
+  // --- "Crazy No" Conversation Messages ---
   const noMessages = [
     "No 🙈",
     "Noooo? 🤨",
@@ -42,20 +45,23 @@ window.onload = () => {
     noBtn.style.top = `${noY}px`;
   }
 
-  // UPDATED: This now handles the text change AND the move
+  // UPDATED: This handles the conversation AND the jump
   function handleNoInteraction(e) {
-    if (e) e.preventDefault();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
-    // Change Text
+    // 1. Change Message
     noClickCount++;
     const messageIndex = Math.min(noClickCount, noMessages.length - 1);
     noBtn.textContent = noMessages[messageIndex];
     
-    // Make Yes grow
+    // 2. Make Yes Button Grow (Funny effect)
     const currentScale = 1 + (noClickCount * 0.1);
     yesBtn.style.transform = `scale(${currentScale})`;
 
-    // Force immediate move after click
+    // 3. Teleport away immediately
     moveButtonRandomly();
   }
 
@@ -73,26 +79,30 @@ window.onload = () => {
       noBtn.style.top = `${noY}px`;
       noBtn.style.margin = "0";
       noBtn.style.zIndex = "1000";
+      noBtn.style.touchAction = "none"; // CRITICAL: Fixes mobile/GitHub scrolling
       document.body.appendChild(noBtn);
     }
   }
 
-  // LISTENERS
+  // --- LISTENERS ---
+  
+  // Computer hover
   noBtn.addEventListener("mouseenter", activateAvoidance);
   
-  // Using 'pointerdown' is better for fast interactions
-  noBtn.addEventListener("pointerdown", handleNoInteraction);
-
-  document.addEventListener("mousemove", e => { 
-    pointerX = e.clientX; 
-    pointerY = e.clientY; 
+  // Fast interaction (Tap/Click)
+  noBtn.addEventListener("pointerdown", (e) => {
+    activateAvoidance(e);
+    handleNoInteraction(e);
   });
 
-  document.addEventListener("touchmove", e => { 
-    pointerX = e.touches[0].clientX; 
-    pointerY = e.touches[0].clientY; 
+  // Track pointer for evasion
+  const updatePointer = (x, y) => { pointerX = x; pointerY = y; };
+  document.addEventListener("mousemove", e => updatePointer(e.clientX, e.clientY));
+  document.addEventListener("touchmove", e => {
+    updatePointer(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
 
+  // --- ANIMATION LOOP ---
   function animate() {
     if (active && pointerX !== null && !isRespawning && noBtn.parentNode) {
       const rect = noBtn.getBoundingClientRect();
@@ -100,7 +110,7 @@ window.onload = () => {
       const btnCenterY = rect.top + rect.height / 2;
       const dist = Math.hypot(btnCenterX - pointerX, btnCenterY - pointerY);
 
-      // Respawn if it hits screen edges
+      // Respawn if pinned against edge
       if (rect.left < 2 || rect.right > window.innerWidth - 2 || rect.top < 2 || rect.bottom > window.innerHeight - 2) {
         isRespawning = true;
         noBtn.style.opacity = "0";
@@ -113,7 +123,7 @@ window.onload = () => {
         }, 200);
       }
 
-      // Smooth Evasion
+      // Smooth evasion movement
       if (!isRespawning && dist < SAFE_RADIUS) {
         let dx = btnCenterX - pointerX;
         let dy = btnCenterY - pointerY;
@@ -124,7 +134,7 @@ window.onload = () => {
       }
 
       if (!isRespawning) {
-        // Clamping targets so it doesn't fly off screen
+        // Keep target inside screen
         targetX = clamp(targetX, MARGIN, window.innerWidth - rect.width - MARGIN);
         targetY = clamp(targetY, MARGIN, window.innerHeight - rect.height - MARGIN);
         
@@ -138,7 +148,7 @@ window.onload = () => {
   }
   animate();
 
-  // --- Memorial & Flow ---
+  // --- MEMORIAL & FLOW ---
   function showMemorial() {
     memorial.classList.add("active");
     const photoRow = document.getElementById("photoRow");
