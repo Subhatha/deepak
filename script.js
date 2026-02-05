@@ -12,10 +12,10 @@ window.onload = () => {
   let active = false;
   let isRespawning = false;
   let noX, noY, targetX, targetY;
-  const SPEED = 0.2; // Slightly faster follow speed
+  const SPEED = 0.2; 
   const MARGIN = 20;
-  const SAFE_RADIUS = 90; // Distance before it runs away
-  const ESCAPE_FORCE = 15; // How fast it pushes away
+  const SAFE_RADIUS = 90; 
+  const ESCAPE_FORCE = 15; 
   let pointerX = null, pointerY = null;
 
   // --- "Crazy No" Conversation Messages ---
@@ -45,23 +45,16 @@ window.onload = () => {
     noBtn.style.top = `${noY}px`;
   }
 
-  // UPDATED: This handles the conversation AND the jump
   function handleNoInteraction(e) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
-    // 1. Change Message
     noClickCount++;
     const messageIndex = Math.min(noClickCount, noMessages.length - 1);
     noBtn.textContent = noMessages[messageIndex];
-    
-    // 2. Make Yes Button Grow (Funny effect)
     const currentScale = 1 + (noClickCount * 0.1);
     yesBtn.style.transform = `scale(${currentScale})`;
-
-    // 3. Teleport away immediately
     moveButtonRandomly();
   }
 
@@ -73,36 +66,28 @@ window.onload = () => {
       noY = rect.top;
       targetX = noX;
       targetY = noY;
-      
       noBtn.style.position = "fixed";
       noBtn.style.left = `${noX}px`;
       noBtn.style.top = `${noY}px`;
       noBtn.style.margin = "0";
       noBtn.style.zIndex = "1000";
-      noBtn.style.touchAction = "none"; // CRITICAL: Fixes mobile/GitHub scrolling
+      noBtn.style.touchAction = "none"; 
       document.body.appendChild(noBtn);
     }
   }
 
-  // --- LISTENERS ---
-  
-  // Computer hover
   noBtn.addEventListener("mouseenter", activateAvoidance);
-  
-  // Fast interaction (Tap/Click)
   noBtn.addEventListener("pointerdown", (e) => {
     activateAvoidance(e);
     handleNoInteraction(e);
   });
 
-  // Track pointer for evasion
   const updatePointer = (x, y) => { pointerX = x; pointerY = y; };
   document.addEventListener("mousemove", e => updatePointer(e.clientX, e.clientY));
   document.addEventListener("touchmove", e => {
     updatePointer(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
 
-  // --- ANIMATION LOOP ---
   function animate() {
     if (active && pointerX !== null && !isRespawning && noBtn.parentNode) {
       const rect = noBtn.getBoundingClientRect();
@@ -110,7 +95,6 @@ window.onload = () => {
       const btnCenterY = rect.top + rect.height / 2;
       const dist = Math.hypot(btnCenterX - pointerX, btnCenterY - pointerY);
 
-      // Respawn if pinned against edge
       if (rect.left < 2 || rect.right > window.innerWidth - 2 || rect.top < 2 || rect.bottom > window.innerHeight - 2) {
         isRespawning = true;
         noBtn.style.opacity = "0";
@@ -123,21 +107,17 @@ window.onload = () => {
         }, 200);
       }
 
-      // Smooth evasion movement
       if (!isRespawning && dist < SAFE_RADIUS) {
         let dx = btnCenterX - pointerX;
         let dy = btnCenterY - pointerY;
         const len = Math.hypot(dx, dy) || 1;
-        
         targetX += (dx / len) * (SAFE_RADIUS - dist + ESCAPE_FORCE);
         targetY += (dy / len) * (SAFE_RADIUS - dist + ESCAPE_FORCE);
       }
 
       if (!isRespawning) {
-        // Keep target inside screen
         targetX = clamp(targetX, MARGIN, window.innerWidth - rect.width - MARGIN);
         targetY = clamp(targetY, MARGIN, window.innerHeight - rect.height - MARGIN);
-        
         noX += (targetX - noX) * SPEED;
         noY += (targetY - noY) * SPEED;
         noBtn.style.left = `${noX}px`;
@@ -148,14 +128,27 @@ window.onload = () => {
   }
   animate();
 
-  // --- MEMORIAL & FLOW ---
   function showMemorial() {
     memorial.classList.add("active");
     const photoRow = document.getElementById("photoRow");
     const videoRow = document.getElementById("videoRow");
     const letterEl = document.getElementById("letter");
 
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    // --- INFINITE FIREWORKS LOOP ---
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+    const infiniteConfetti = setInterval(() => {
+      confetti(Object.assign({}, defaults, { 
+        particleCount: 35, 
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+      }));
+      confetti(Object.assign({}, defaults, { 
+        particleCount: 35, 
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+      }));
+    }, 500); // Fires every half second
+    // -------------------------------
 
     photoRow.innerHTML = "";
     ["assets/photo1.jpeg", "assets/photo2.jpeg", "assets/photo3.jpeg", "assets/photo4.jpeg"].forEach(src => {
@@ -167,7 +160,7 @@ window.onload = () => {
     videoRow.muted = true;
     videoRow.play();
 
-    const letterText = `To my forever VALENTINE,\n\nBaby I never knew love was this beautiful until I met you , Thank you for coming into my life. Every moment with you feels like home, You make my days brighter and my heart calmer your smile the best stress reliever no matter how stressed iam, You are my world. when you are beside me everyday is a valentine day and you are special to me everyday, my love towards you grows only stronger by time, I know I might not be a perfect boyfriend but I can promise I’ll always make my self better everyday and I can’t see tears no matter what I promise You are my love of my life, No matter how many storms come our way, as long as you hold my hand, I am ready to overcome anything. I really can’t wait to get older and wiser with you.\n\nThank you my love\n\nI love you to the moon and back❤️\n\nKhushi’s Saideepak\n\n❤️`;
+    const letterText = `To my forever VALENTINE,\n\nBaby I never knew love could be this beautiful until I met you , Thank you for coming into my life. Every moment with you feels like home, You make my days brighter and my heart calmer. Your smile the best stress reliever-no matter how stressed I am. You are my world. When you are beside me, every day feels like Valentine's Day, and you are special to me every single day. My love for you grows stronger by time. I know I might not be the perfect boyfriend, but I promise I’ll always strive to be better everyday. I can’t see bear to see you in tears, and no matter what, I promise-you are the love of my life. No matter how many storms come our way, as long as you hold my hand, I am ready to overcome anything. I really can’t wait to grow older and wiser with you.\n\nThank you my love\n\nI love you to the moon and back❤️\n\nKhushi’s Saideepak\n\n❤️`;
 
     let i = 0;
     const typeInterval = setInterval(() => {
